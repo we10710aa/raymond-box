@@ -20,7 +20,8 @@ public class StartActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(StartActivity.this,MainActivity.class);
-                    startActivity(intent);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivityIfNeeded(intent,5);
                 }
             });
         }

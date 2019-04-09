@@ -14,6 +14,8 @@ import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -87,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
     ProgressBar progressBar;
     ImageView trackImage;
     Switch pollySwitch;
+    BottomNavigationView bottomNavigationView;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -94,9 +97,27 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    private class NavigationListener implements BottomNavigationView.OnNavigationItemSelectedListener {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+            switch (menuItem.getItemId()){
+                case R.id.nav_recommend:
+                    startActivity(new Intent(MainActivity.this,PersonalActivity.class));
+                    break;
+                case R.id.nav_play:
+                    break;
+                case R.id.nav_unknown:
+                    break;
+            }
+            return  true;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("MainActivity","onCreate");
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -105,8 +126,11 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar_MainActivity);
         trackImage = findViewById(R.id.img_song);
         pollySwitch=findViewById(R.id.switchAmazon);
-        setTitle("Raymond's Box");
+        bottomNavigationView = findViewById(R.id.btm_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.nav_play);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new NavigationListener());
 
+        setTitle("Raymond's Box");
         controller = new MediaController(this);
         controller.setPrevNextListeners(new View.OnClickListener() {
             @Override
@@ -305,6 +329,7 @@ public class MainActivity extends AppCompatActivity {
             recognizer.stop();
             recognizer.startListening(KWS_SEARCH);
         }
+        bottomNavigationView.setSelectedItemId(R.id.nav_play);
     }
 
     @Override
@@ -355,7 +380,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                     else {
                         try {
-
                             speechMediaPlayer = pollySpeechToText.getMediaPlayerInstance(
                                     ChineseConverter.convert(text, ConversionType.T2S, MainActivity.this));
                             speechMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
