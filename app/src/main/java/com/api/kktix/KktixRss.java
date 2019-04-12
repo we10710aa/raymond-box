@@ -7,7 +7,7 @@ import org.simpleframework.xml.Root;
 import java.util.List;
 
 @Root(name = "feed",strict = false)
-public class KktixRssFeed {
+public class KktixRss {
 
     @Element(name = "id")
     String id;

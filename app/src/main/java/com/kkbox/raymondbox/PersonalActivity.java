@@ -11,7 +11,8 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import com.api.kktix.KktixRssFeed;
+import com.api.kktix.Kktix;
+import com.api.kktix.KktixRss;
 
 import org.simpleframework.xml.convert.AnnotationStrategy;
 import org.simpleframework.xml.core.Persister;
@@ -62,15 +63,10 @@ public class PersonalActivity extends AppCompatActivity {
         final ListView listView = findViewById(R.id.list_view);
 
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Kktix.url)
-                .addConverterFactory(SimpleXmlConverterFactory.createNonStrict(new Persister(new AnnotationStrategy())))
-                .build();
-        Kktix kkTixRss = retrofit.create(Kktix.class);
-        Call<KktixRssFeed> call = kkTixRss.getRss("4","zh-TW");
-        call.enqueue(new Callback<KktixRssFeed>() {
+        Call<KktixRss> call = Kktix.getInstance().getInterface().getRss("4","zh-TW");
+        call.enqueue(new Callback<KktixRss>() {
             @Override
-            public void onResponse(Call<KktixRssFeed> call, Response<KktixRssFeed> response) {
+            public void onResponse(Call<KktixRss> call, Response<KktixRss> response) {
                 if((response.code()!=200)||(response.body().getEntryList()==null)){
                     Log.d("PersonalActivity","retry connection");
                     call.clone().enqueue(this);
@@ -95,14 +91,9 @@ public class PersonalActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<KktixRssFeed> call, Throwable t) {
+            public void onFailure(Call<KktixRss> call, Throwable t) {
 
             }
         });
-    }
-    private interface Kktix {
-        String url = "https://kktix.com/";
-        @GET("events.atom")
-        Call<KktixRssFeed> getRss(@Query("category_id")String id, @Query("locale")String locale);
     }
 }
