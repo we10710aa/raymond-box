@@ -1,24 +1,35 @@
 package com.api.kkbox;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import okhttp3.Interceptor;
 import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class KKAssistant {
     public static final int AUDIO_INEFFECTIVE=-1;
@@ -29,21 +40,47 @@ public class KKAssistant {
     public static final int AUDIO_RESUME=4;
     public static final int AUDIO_ERROR =-2 ;
 
+    private static KKAssistant kkAssistantInstance;
+    private KKAssistantApi kkAssistantApi;
+
+    private String userID;
+    private String accessToken;
+
     public interface KKAssistantApi{
         @POST("/")
         @Headers({"Content-type: application/json"})
         Call<JsonObject> assistant(@Body RequestBody body);
         String BASE_URL = "https://nlu.assistant.kkbox.com";
     }
-    public static KKAssistantApi getInstance(){
+    private  KKAssistant(Context context){
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
+                .build();
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(KKAssistantApi.BASE_URL)
+                .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         KKAssistantApi api = retrofit.create(KKAssistantApi.class);
-        return api;
+        kkAssistantApi = api;
+
+        SharedPreferences pref = context.getSharedPreferences("USER",MODE_PRIVATE);
+        userID= pref.getString("id",null);
+        accessToken = pref.getString("access_token",null);
     }
-    public static RequestBody getRequestBody(final String key,final String userID,final String accessToken){
+
+    public static KKAssistant getInstance(Context context){
+        kkAssistantInstance = new KKAssistant(context);
+        return kkAssistantInstance;
+    }
+
+    public Call<JsonObject> ask(String key){
+        return kkAssistantApi.assistant(this.getRequestBody(key));
+    }
+
+    private RequestBody getRequestBody(final String key){
+
         Map<String,Object> map = new LinkedHashMap<>();
         map.put("version","1.0");
         map.put("context",

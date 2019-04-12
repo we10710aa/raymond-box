@@ -208,11 +208,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Exception doInBackground(Void... voids) {
             try {
-                SharedPreferences pref = getSharedPreferences("USER",MODE_PRIVATE);
-                Call<JsonObject>user = Partner.getInstance()
-                        .getMe("Bearer "+pref.getString("access_token",null));
-                String userID = Partner.parseUserID(Objects.requireNonNull(user.execute().body()));
-                pref.edit().putString("id",userID).apply();
                 Assets assets = new Assets(MainActivity.this);
                 File assetDir = assets.syncAssets();
                 recognizer = SpeechRecognizerSetup.defaultSetup()
@@ -360,11 +355,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void askKKAssistant(final String key) {
-        SharedPreferences pref = getSharedPreferences("USER",MODE_PRIVATE);
-        String id= pref.getString("id",null);
-        String accessToken = pref.getString("access_token",null);
-        Call<JsonObject> request = KKAssistant.getInstance().
-                assistant(KKAssistant.getRequestBody(key,id,accessToken));
+        Call<JsonObject> request = KKAssistant.getInstance(this).ask(key);
         final TextView timeLog = findViewById(R.id.text_timeLog);
         final long startTime = System.nanoTime();
         request.enqueue(new Callback<JsonObject>() {
@@ -456,10 +447,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        String token = getSharedPreferences("USER",MODE_PRIVATE)
-                .getString("access_token",null);
-        final Call<JsonObject> trackFetcher = Partner.getInstance()
-                .getTrackInfo(state.getSongId(),"Bearer "+token);
+        final Call<JsonObject> trackFetcher = Partner.getInstance(this)
+                .getPartnerApi().getTrackInfo(state.getSongId());
         trackFetcher.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
