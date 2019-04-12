@@ -1,4 +1,4 @@
-package com.kkbox.raymondbox;
+package com.api.kkbox;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -20,7 +20,7 @@ import retrofit2.http.Body;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 
-class KKAssistant {
+public class KKAssistant {
     public static final int AUDIO_INEFFECTIVE=-1;
     public static final int AUDIO_PLAY=0;
     public static final int AUDIO_SKIP_FORWARD=1;

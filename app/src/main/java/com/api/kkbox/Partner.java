@@ -1,4 +1,4 @@
-package com.kkbox.raymondbox;
+package com.api.kkbox;
 
 
 import com.google.gson.JsonObject;
@@ -18,8 +18,6 @@ public class Partner {
         @GET("tracks/{trackID}?territory=TW")
         Call<JsonObject> getTrackInfo(@Path("trackID")String trackID,
                                       @Header("authorization") String token);
-
-
     }
     public static PartnerApi getInstance(){
         Retrofit retrofit = new Retrofit.Builder()
@@ -29,6 +27,7 @@ public class Partner {
         PartnerApi api = retrofit.create(PartnerApi.class);
         return api;
     }
+
     public static String parseUserImageUrl(JsonObject response){
         String url = response.getAsJsonArray("images")
                 .get(1).getAsJsonObject().get("url").getAsString();

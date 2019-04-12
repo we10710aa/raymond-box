@@ -30,6 +30,7 @@ dependencies {
     implementation project(':pocketsphinx-android-5prealpha-release')
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
+    implementation 'com.squareup.retrofit2:converter-simplexml:2.5.0'
     implementation 'com.google.zxing:core:3.3.3'
     implementation('com.journeyapps:zxing-android-embedded:3.6.0') { transitive = false }
     implementation 'com.squareup.picasso:picasso:2.71828'

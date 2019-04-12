@@ -15,7 +15,6 @@ import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -34,10 +33,13 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.api.aws.PollySpeechToText;
 import com.google.gson.JsonObject;
 import com.kkbox.kklinxdevicesdk.Config;
 import com.kkbox.kklinxdevicesdk.KKLINXDeviceSdk;
 import com.kkbox.kklinxdevicesdk.PlaybackState;
+import com.api.kkbox.KKAssistant;
+import com.api.kkbox.Partner;
 import com.squareup.picasso.Picasso;
 import com.zqc.opencc.android.lib.ChineseConverter;
 import com.zqc.opencc.android.lib.ConversionType;
@@ -84,12 +86,12 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    TextView trackInfo;
-    TextView textInitializing;
-    ProgressBar progressBar;
-    ImageView trackImage;
-    Switch pollySwitch;
-    BottomNavigationView bottomNavigationView;
+    private TextView trackInfo;
+    private TextView textInitializing;
+    private ProgressBar progressBar;
+    private ImageView trackImage;
+    private Switch pollySwitch;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -241,6 +243,7 @@ public class MainActivity extends AppCompatActivity {
                 textInitializing.setVisibility(View.INVISIBLE);
                 trackImage.setVisibility(View.VISIBLE);
                 trackInfo.setVisibility(View.VISIBLE);
+                pollySwitch.setVisibility(View.VISIBLE);
             }
         }
     }

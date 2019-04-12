@@ -1,4 +1,4 @@
-package com.kkbox.raymondbox;
+package com.api.aws;
 
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
@@ -8,6 +8,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.polly.AmazonPollyPresigningClient;
 import com.amazonaws.services.polly.model.OutputFormat;
 import com.amazonaws.services.polly.model.SynthesizeSpeechPresignRequest;
+import com.kkbox.raymondbox.MainActivity;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -21,7 +22,7 @@ public class PollySpeechToText {
     private AmazonPollyPresigningClient client;
     protected MainActivity context;
     protected MediaPlayer mediaPlayer;
-    PollySpeechToText(MainActivity _context, String poolId, Regions regions){
+    public PollySpeechToText(MainActivity _context, String poolId, Regions regions){
         CognitoCachingCredentialsProvider provider = new CognitoCachingCredentialsProvider(
                 _context,poolId,regions);
         client = new AmazonPollyPresigningClient(provider);
