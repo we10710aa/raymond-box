@@ -2,9 +2,9 @@ package com.kkbox.raymondbox;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,9 +14,6 @@ import android.widget.ProgressBar;
 import com.api.kktix.Kktix;
 import com.api.kktix.KktixRss;
 
-import org.simpleframework.xml.convert.AnnotationStrategy;
-import org.simpleframework.xml.core.Persister;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -24,10 +21,6 @@ import java.util.Calendar;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
-import retrofit2.http.GET;
-import retrofit2.http.Query;
 
 public class PersonalActivity extends AppCompatActivity {
 

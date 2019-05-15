@@ -2,7 +2,7 @@ package com.kkbox.raymondbox;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,8 +12,6 @@ import android.widget.TextView;
 
 import com.api.kkbox.Partner;
 import com.google.gson.JsonObject;
-
-import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
