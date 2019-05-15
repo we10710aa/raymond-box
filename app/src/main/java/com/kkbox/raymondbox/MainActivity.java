@@ -121,6 +121,12 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                     kklinx.startMainLoop();
                 }
+
+                @Override
+                public void interrupt() {
+                    kklinx.destroy();
+                    super.interrupt();
+                }
             };
         }
         pollyTextToSpeech = new PollyTextToSpeech(
@@ -291,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.actions_logout:
                 kklinx.stopPlayback();
-                kklinx.destroy();
+                kklinxThread.interrupt();
                 recognizer.stop();
                 recognizer.shutdown();
                 pollyTextToSpeech.shutDown();
@@ -335,6 +341,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode,resultCode,data);
         switch (requestCode) {
             case SPEECH_TO_TEXT:
                 switch (resultCode) {
