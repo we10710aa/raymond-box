@@ -2,23 +2,22 @@ package com.kkbox.raymondbox;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.google.gson.JsonObject;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
+import androidx.appcompat.app.AppCompatActivity;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -58,15 +57,19 @@ public class LoginActivity extends AppCompatActivity {
                 String url = response.body().get("verification_qrcode").getAsString();
                 deviceCode = response.body().get("device_code").getAsString();
                 Log.d("LoginActivity","got url: "+url+" and device code: "+deviceCode);
-                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
                 try {
-                    Bitmap bitmap = barcodeEncoder.encodeBitmap(url, BarcodeFormat.QR_CODE,800,800);
-                    imgQrcode.setImageBitmap(bitmap);
+                    String encodedURL = URLEncoder.encode(url,"UTF-8");
+                    String qrcodeUrl =
+                            String.format("https://qrcode.kkbox.com.tw/generator?content=%s" +
+                                    "&image_size=%s" +
+                                    "&logo_size=%s" +
+                                    "&response_type=%s",encodedURL,800,200,"image");
+                    Picasso.get().load(qrcodeUrl).into(imgQrcode);
                     progressBar.setVisibility(View.GONE);
                     imgQrcode.setVisibility(View.VISIBLE);
                     tokenPolling();
-                } catch (WriterException e) {
-                    Log.e("LoginActivity",e.getMessage());
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
                 }
             }
 

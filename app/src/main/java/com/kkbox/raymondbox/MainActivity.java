@@ -1,6 +1,8 @@
 package com.kkbox.raymondbox;
 
 import android.Manifest;
+import android.app.SearchManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -29,6 +31,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -93,6 +96,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
+
+        SearchManager searchManager =(SearchManager)getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView)menu.findItem(R.id.app_bar_search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setSubmitButtonEnabled(true);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+
+        });
+
         return true;
     }
 
@@ -306,6 +327,15 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         return true;
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        if(Intent.ACTION_SEARCH.equals(intent.getAction())){
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            askKKAssistant(query);
+        }
+        super.onNewIntent(intent);
     }
 
     @Override

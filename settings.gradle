@@ -1,1 +1,1 @@
-include ':app', ':KKLINXDeviceSDK-release', ':lib-opencc-android-0.8.0', ':pocketsphinx-android-5prealpha-release'
+include ':app', ':lib-opencc-android-0.8.0', ':pocketsphinx-android-5prealpha-release', ':KKLINXDeviceSDK-release'

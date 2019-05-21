@@ -25,14 +25,11 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0-beta01'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0-beta01'
-    implementation project(':KKLINXDeviceSDK-release')
     implementation project(':lib-opencc-android-0.8.0')
     implementation project(':pocketsphinx-android-5prealpha-release')
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
     implementation 'com.squareup.retrofit2:converter-simplexml:2.5.0'
-    implementation 'com.google.zxing:core:3.3.3'
-    implementation('com.journeyapps:zxing-android-embedded:3.6.0') { transitive = false }
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'androidx.exifinterface:exifinterface:1.1.0-alpha01'
     implementation 'com.amazonaws:aws-android-sdk-polly:2.12.5'
@@ -40,6 +37,7 @@ dependencies {
     implementation 'android.arch.navigation:navigation-fragment:1.0.0'
     implementation 'com.google.android.material:material:1.1.0-alpha06'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.8.1'
+    implementation project(path: ':KKLINXDeviceSDK-release')
 }
 ant.importBuild 'assets.xml'
 preBuild.dependsOn(list, checksum)
