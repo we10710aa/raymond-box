@@ -2,7 +2,6 @@ package com.kkbox.raymondbox;
 
 import android.Manifest;
 import android.app.SearchManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,12 +15,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
-import androidx.annotation.NonNull;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -35,6 +28,14 @@ import android.widget.SearchView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.api.aws.PollyTextToSpeech;
 import com.api.kkbox.KKAssistant;
@@ -91,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private ImageView trackImage;
     private Switch pollySwitch;
-    private BottomNavigationView bottomNavigationView;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -101,18 +101,6 @@ public class MainActivity extends AppCompatActivity {
         SearchView searchView = (SearchView)menu.findItem(R.id.app_bar_search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setSubmitButtonEnabled(true);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
-            }
-
-        });
 
         return true;
     }
@@ -189,23 +177,6 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar_MainActivity);
         trackImage = findViewById(R.id.img_song);
         pollySwitch = findViewById(R.id.switchAmazon);
-        bottomNavigationView = findViewById(R.id.btm_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.nav_play);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                switch (menuItem.getItemId()) {
-                    case R.id.nav_recommend:
-                        startActivity(new Intent(MainActivity.this, PersonalActivity.class));
-                        break;
-                    case R.id.nav_play:
-                        break;
-                    case R.id.nav_unknown:
-                        break;
-                }
-                return true;
-            }
-        });
         //MediaPlayer control panel
         controller = new MediaController(this);
         controller.setPrevNextListeners(new View.OnClickListener() {
@@ -301,10 +272,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onBackPressed() {
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.actions_speak:
@@ -349,6 +316,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         Log.d("MainActivity", "onStop");
+        textToSpeech.shutdown();
+        kklinxThread.interrupt();
         super.onStop();
     }
 
@@ -360,7 +329,6 @@ public class MainActivity extends AppCompatActivity {
             recognizer.stop();
             recognizer.startListening(KWS_SEARCH);
         }
-        bottomNavigationView.setSelectedItemId(R.id.nav_play);
     }
 
     @Override
@@ -578,7 +546,6 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences pref = getSharedPreferences("USER", MODE_PRIVATE);
             String access_token = pref.getString("access_token", null);
             String userID = pref.getString("id", null);
-            Log.d("ssss", userID + access_token);
             kklinx.authenticate(userID, access_token);
         }
 

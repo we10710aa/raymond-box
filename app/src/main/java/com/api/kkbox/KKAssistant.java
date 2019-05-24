@@ -2,6 +2,7 @@ package com.api.kkbox;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -9,18 +10,14 @@ import com.google.gson.JsonObject;
 
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -41,12 +38,12 @@ public class KKAssistant {
     public static final int AUDIO_ERROR =-2 ;
 
     private static KKAssistant kkAssistantInstance;
-    private KKAssistantApi kkAssistantApi;
+    private KKBrainApi kkBrainApi;
 
     private String userID;
     private String accessToken;
 
-    public interface KKAssistantApi{
+    public interface KKBrainApi {
         @POST("/")
         @Headers({"Content-type: application/json"})
         Call<JsonObject> assistant(@Body RequestBody body);
@@ -58,12 +55,12 @@ public class KKAssistant {
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(KKAssistantApi.BASE_URL)
-                .client(client)
+                .baseUrl(KKBrainApi.BASE_URL)
+                .client(client)  //get rid of this line if you don't want http logging
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        KKAssistantApi api = retrofit.create(KKAssistantApi.class);
-        kkAssistantApi = api;
+        KKBrainApi api = retrofit.create(KKBrainApi.class);
+        kkBrainApi = api;
 
         SharedPreferences pref = context.getSharedPreferences("USER",MODE_PRIVATE);
         userID= pref.getString("id",null);
@@ -71,12 +68,14 @@ public class KKAssistant {
     }
 
     public static KKAssistant getInstance(Context context){
-        kkAssistantInstance = new KKAssistant(context);
+        if(kkAssistantInstance == null) {
+            kkAssistantInstance = new KKAssistant(context);
+        }
         return kkAssistantInstance;
     }
 
     public Call<JsonObject> ask(String key){
-        return kkAssistantApi.assistant(this.getRequestBody(key));
+        return kkBrainApi.assistant(this.getRequestBody(key));
     }
 
     private RequestBody getRequestBody(final String key){

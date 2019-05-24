@@ -38,6 +38,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.1.0-alpha06'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.8.1'
     implementation project(path: ':KKLINXDeviceSDK-release')
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 }
 ant.importBuild 'assets.xml'
 preBuild.dependsOn(list, checksum)
