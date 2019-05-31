@@ -469,7 +469,6 @@ public class MainActivity extends AppCompatActivity {
                 trackInfo.setGravity(Gravity.CENTER);
                 trackInfo.setText(String.format("%s\n%s\n%s",
                         state.getSongName(), state.getAlbumName(), state.getArtistName()));
-
             }
         });
     }

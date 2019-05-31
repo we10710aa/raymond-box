@@ -13,7 +13,7 @@ import java.util.List;
 
 public class StartFunctionAdapter extends BaseAdapter {
     List<String> functionList = new ArrayList<String>(
-            Arrays.asList("KKLINX","KKBRAIN","AIDL")
+            Arrays.asList("主題展示","KKBRAIN","KKLINX")
     );
     List<Class<?>> activityList = new ArrayList<>();
     Context context;
@@ -21,7 +21,7 @@ public class StartFunctionAdapter extends BaseAdapter {
         this.context = context;
         activityList.add(MainActivity.class);
         activityList.add(KKBrainActivity.class);
-        activityList.add(MainActivity.class);
+        activityList.add(KKlinxActivity.class);
     }
 
     @Override

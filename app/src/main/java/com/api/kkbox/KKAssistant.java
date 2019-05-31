@@ -93,7 +93,7 @@ public class KKAssistant {
                 }});
         map.put("request",new LinkedHashMap<String,Object>(){{
             put("type","DirectiveRequest");
-            put("requestId","08ad060515cbb52836954fae5dc2f90z");
+            put("requestId",userID);
             put("timestamp", Calendar.getInstance().getTime().toString());
             put("asr",new LinkedHashMap<String,String>(){{
                 put("text",key);
