@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.api.kkbox.KKBOXOAuth;
 import com.google.gson.JsonObject;
 import com.squareup.picasso.Picasso;
 
@@ -33,9 +34,7 @@ import retrofit2.http.Query;
 public class LoginActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private ImageView imgQrcode;
-    private DevicAuthFlow devicAuthFlow;
     private Handler pollingHandler=null;
-    private String deviceCode;
     private HandlerThread pollingThread;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,18 +43,13 @@ public class LoginActivity extends AppCompatActivity {
         setTitle("Scan QRcode to login");
         progressBar = findViewById(R.id.progress_bar);
         imgQrcode = findViewById(R.id.img_qrcode);
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(DevicAuthFlow.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        devicAuthFlow = retrofit.create(DevicAuthFlow.class);
-        final Call<JsonObject> urlCall = devicAuthFlow.getQrcode(ClientInfo.clientID,
-                "user_profile user_territory user_account_status");
+        final Call<JsonObject> urlCall = KKBOXOAuth.getInstance().getKKBOXOauthApi()
+                .getDeviceCodeApiCall(ClientInfo.clientID, KKBOXOAuth.KKBOXOAuthApi.DEFAULT_SCOPE);
         urlCall.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 String url = response.body().get("verification_qrcode").getAsString();
-                deviceCode = response.body().get("device_code").getAsString();
+                String deviceCode = response.body().get("device_code").getAsString();
                 Log.d("LoginActivity","got url: "+url+" and device code: "+deviceCode);
                 try {
                     String encodedURL = URLEncoder.encode(url,"UTF-8");
@@ -67,7 +61,7 @@ public class LoginActivity extends AppCompatActivity {
                     Picasso.get().load(qrcodeUrl).into(imgQrcode);
                     progressBar.setVisibility(View.GONE);
                     imgQrcode.setVisibility(View.VISIBLE);
-                    tokenPolling();
+                    tokenPolling(deviceCode);
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
@@ -80,10 +74,13 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void tokenPolling() {
-        final Call<JsonObject>tokenCall = devicAuthFlow.getToken(
-                "http://oauth.net/grant_type/device/1.0",
-                ClientInfo.clientID,ClientInfo.clientSecret,deviceCode);
+    private void tokenPolling(String deviceCode) {
+        final Call<JsonObject>tokenCall = KKBOXOAuth.getInstance().getKKBOXOauthApi().getTokenApiCall(
+                KKBOXOAuth.KKBOXOAuthApi.DEVICE_FLOW,
+                ClientInfo.clientID,
+                ClientInfo.clientSecret,
+                deviceCode
+        );
         pollingThread = new HandlerThread("pollingThread");
         pollingThread.start();
         pollingHandler=new Handler(pollingThread.getLooper());
@@ -147,25 +144,5 @@ public class LoginActivity extends AppCompatActivity {
             pollingThread.quit();
         }
         super.onStop();
-    }
-
-    interface DevicAuthFlow{
-        @POST("oauth2/device/code")
-        @FormUrlEncoded
-        @Headers({"Content-Type: application/x-www-form-urlencoded"})
-        Call<JsonObject> getQrcode(@Field("client_id")String clientId,
-                                   @Field("scope")String scope);
-
-        @POST("oauth2/token")
-        @FormUrlEncoded
-        @Headers({"Content-Type: application/x-www-form-urlencoded"})
-        Call<JsonObject> getToken(@Field("grant_type")String grantType,
-                                  @Field("client_id")String clientID,
-                                  @Field("client_secret")String clientSecret,
-                                  @Field("code")String deviceCode);
-
-        @GET("oauth2/tokeninfo")
-        Call<JsonObject> tokenInfo(@Query("access_token")String token);
-        String BASE_URL ="https://account.kkbox.com/";
     }
 }

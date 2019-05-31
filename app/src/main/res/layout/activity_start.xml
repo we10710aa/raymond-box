@@ -18,7 +18,7 @@
         app:cardCornerRadius="10dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constrainLayout_notLogged"
+            android:id="@+id/constrainLayout_start_notLogged"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 

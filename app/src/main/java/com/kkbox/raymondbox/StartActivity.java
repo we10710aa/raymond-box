@@ -35,7 +35,7 @@ public class StartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
         loggedInLayout = findViewById(R.id.constraintLayout_start_logged);
-        notLogggedInLayout = findViewById(R.id.constrainLayout_notLogged);
+        notLogggedInLayout = findViewById(R.id.constrainLayout_start_notLogged);
         loggedInLayout.setVisibility(View.INVISIBLE);
         notLogggedInLayout.findViewById(R.id.btn_start_login).setVisibility(View.INVISIBLE);
 

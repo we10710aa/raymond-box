@@ -62,7 +62,9 @@ public class Partner {
     }
 
     public static Partner getInstance(Context context){
-        partnerInstance = new Partner(context);
+        if(partnerInstance==null){
+            partnerInstance = new Partner(context);
+        }
         return partnerInstance;
     }
 
