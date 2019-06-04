@@ -4,6 +4,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
@@ -16,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.api.kkbox.KKBOXOAuth;
 import com.api.kkbox.Partner;
 import com.google.gson.JsonObject;
 import com.squareup.picasso.Picasso;
@@ -23,6 +25,7 @@ import com.squareup.picasso.Picasso;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class StartActivity extends AppCompatActivity {
     private ConstraintLayout loggedInLayout;
@@ -39,16 +42,15 @@ public class StartActivity extends AppCompatActivity {
         loggedInLayout.setVisibility(View.INVISIBLE);
         notLogggedInLayout.findViewById(R.id.btn_start_login).setVisibility(View.INVISIBLE);
 
-        final SharedPreferences preferences = getSharedPreferences("USER",MODE_PRIVATE);
-        if(preferences.contains("access_token")){
+        final SharedPreferences preferences = getSharedPreferences("USER", MODE_PRIVATE);
+        if (preferences.contains("access_token")) {
             setUserCard(preferences);
-        }
-        else{
+        } else {
             buttonLogin = findViewById(R.id.btn_start_login);
             buttonLogin.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(StartActivity.this,LoginActivity.class);
+                    Intent intent = new Intent(StartActivity.this, LoginActivity.class);
                     startActivity(intent);
                 }
             });
@@ -61,53 +63,77 @@ public class StartActivity extends AppCompatActivity {
     }
 
     private void setUserCard(final SharedPreferences preferences) {
-        Call<JsonObject> call = Partner.getInstance(this).getPartnerApi().getMe();
+        Call<JsonObject> call = Partner.getInstance().
+                getPartnerApi().getMe("Bearer "+preferences.getString("access_token",null ));
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                Log.d("hello",response.body().toString());
                 final String userID = Partner.parseUserID(response.body());
                 String userName = Partner.parseUserName(response.body());
                 String url = Partner.parseUserImageUrl(response.body());
-                final String token = preferences.getString("access_token",null);
-                preferences.edit().putString("id",userID).apply();
-                Picasso.get().load(url).into((ImageView)findViewById(R.id.img_start_avatar));
-                ((TextView)findViewById(R.id.tv_start_userid)).setText("ID:"+userID);
-                ((TextView)findViewById(R.id.tv_start_username)).setText(userName);
-                ((TextView)findViewById(R.id.tv_start_accesstoken))
-                        .setText("TOKEN:"+token);
-                findViewById(R.id.btn_start_copyID).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(StartActivity.this,"copied userID",Toast.LENGTH_LONG).show();
-                        ClipboardManager manager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                        manager.setPrimaryClip(ClipData.newPlainText("simple text",userID));
-                    }
-                });
-
-                findViewById(R.id.btn_start_copytoken).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(StartActivity.this,"copied token",Toast.LENGTH_LONG).show();
-                        ClipboardManager manager = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
-                        manager.setPrimaryClip(ClipData.newPlainText("simple text",token));
-                    }
-                });
-                findViewById(R.id.btn_start_logout).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        preferences.edit().clear().commit();
-                        StartActivity.this.recreate();
-                    }
-                });
+                final String token = preferences.getString("access_token", null);
+                preferences.edit().putString("id", userID).apply();
+                Picasso.get().load(url).into((ImageView) findViewById(R.id.img_start_avatar));
+                ((TextView) findViewById(R.id.tv_start_userid)).setText("ID:" + userID);
+                ((TextView) findViewById(R.id.tv_start_username)).setText(userName);
+                ((TextView) findViewById(R.id.tv_start_accesstoken)).setText("TOKEN:" + token);
                 loggedInLayout.setVisibility(View.VISIBLE);
                 notLogggedInLayout.setVisibility(View.INVISIBLE);
             }
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
-                Log.d("StartActivity",t.getMessage());
+                Log.d("StartActivity", t.getMessage());
             }
         });
+    }
+
+    public void copyUserID(View view) {
+        Toast.makeText(StartActivity.this, "copied userID", Toast.LENGTH_LONG).show();
+        ClipboardManager manager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        String userID = ((TextView) findViewById(R.id.tv_start_userid)).getText().toString();
+        manager.setPrimaryClip(ClipData.newPlainText("simple text", userID));
+    }
+
+    public void copyToken(View view) {
+        Toast.makeText(StartActivity.this, "copied token", Toast.LENGTH_LONG).show();
+        ClipboardManager manager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        String token = ((TextView) findViewById(R.id.tv_start_accesstoken)).getText().toString();
+        manager.setPrimaryClip(ClipData.newPlainText("simple text", token));
+    }
+
+    public void logOut(View view) {
+        SharedPreferences preferences = getSharedPreferences("USER",MODE_PRIVATE);
+        preferences.edit().clear().apply();
+        StartActivity.this.recreate();
+    }
+
+    public void refreshToken(View view){
+        final SharedPreferences preferences = getSharedPreferences("USER",MODE_PRIVATE);
+        String refreshToken  = preferences.getString("refresh_token",null);
+        Call<JsonObject> call = KKBOXOAuth.getInstance().getKKBOXOauthApi()
+                .getTokenRefreshCall(KKBOXOAuth.KKBOXOAuthApi.REFRESH_TOKEN,refreshToken,ClientInfo.clientID,ClientInfo.clientSecret);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                Log.d("StartActivity","refreshToken response"+response.body().toString());
+                Toast.makeText(StartActivity.this,"Token Refreshed",Toast.LENGTH_LONG).show();
+                preferences.edit()
+                        .putString("access_token",KKBOXOAuth.parseAccessToken(response.body()))
+                        .putString("expires_in", KKBOXOAuth.parseExpiresIn(response.body()))
+                        .putString("refresh_token",KKBOXOAuth.parseRefreshToken(response.body()))
+                        .apply();
+                setUserCard(preferences);
+
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+
+            }
+        });
+
     }
 
 }

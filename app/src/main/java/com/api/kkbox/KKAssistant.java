@@ -7,6 +7,7 @@ import android.util.Log;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.kkbox.raymondbox.KKBrainActivity;
 
 import org.json.JSONObject;
 
@@ -40,16 +41,13 @@ public class KKAssistant {
     private static KKAssistant kkAssistantInstance;
     private KKBrainApi kkBrainApi;
 
-    private String userID;
-    private String accessToken;
-
     public interface KKBrainApi {
         @POST("/")
         @Headers({"Content-type: application/json"})
-        Call<JsonObject> assistant(@Body RequestBody body);
+        Call<JsonObject> getAssistantCall(@Body RequestBody body);
         String BASE_URL = "https://nlu.assistant.kkbox.com";
     }
-    private  KKAssistant(Context context){
+    private  KKAssistant(){
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
                 .build();
@@ -62,24 +60,20 @@ public class KKAssistant {
         KKBrainApi api = retrofit.create(KKBrainApi.class);
         kkBrainApi = api;
 
-        SharedPreferences pref = context.getSharedPreferences("USER",MODE_PRIVATE);
-        userID= pref.getString("id",null);
-        accessToken = pref.getString("access_token",null);
     }
 
-    public static KKAssistant getInstance(Context context){
+    public static KKAssistant getInstance(){
         if(kkAssistantInstance == null) {
-            kkAssistantInstance = new KKAssistant(context);
+            kkAssistantInstance = new KKAssistant();
         }
         return kkAssistantInstance;
     }
 
-    public Call<JsonObject> ask(String key){
-        return kkBrainApi.assistant(this.getRequestBody(key));
+    public KKBrainApi getKkBrainApi(){
+        return  this.kkBrainApi;
     }
 
-    private RequestBody getRequestBody(final String key){
-
+    public static RequestBody getRequestBody(final String key,final String userID,final String accessToken){
         Map<String,Object> map = new LinkedHashMap<>();
         map.put("version","1.0");
         map.put("context",

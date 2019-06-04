@@ -357,7 +357,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void askKKAssistant(final String key) {
-        Call<JsonObject> request = KKAssistant.getInstance(this).ask(key);
+        String userID = getSharedPreferences("USER",MODE_PRIVATE)
+                .getString("id",null);
+        String accessToken = getSharedPreferences("USER",MODE_PRIVATE)
+                .getString("access_token",null);
+        Call<JsonObject> request = KKAssistant.getInstance()
+                .getKkBrainApi().getAssistantCall(KKAssistant.getRequestBody(key,userID,accessToken));
         final TextView timeLog = findViewById(R.id.text_timeLog);
         final long startTime = System.nanoTime();
         request.enqueue(new Callback<JsonObject>() {
@@ -384,7 +389,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
-                Log.e("KKLINX assistant", t.getMessage());
+                Log.e("KKLINX getAssistantCall", t.getMessage());
             }
         });
     }
@@ -411,7 +416,7 @@ public class MainActivity extends AppCompatActivity {
                 kklinx.resume();
                 break;
             case KKAssistant.AUDIO_ERROR:
-                Log.d("assistant", "error parsing" + kklinxResponse);
+                Log.d("getAssistantCall", "error parsing" + kklinxResponse);
                 break;
         }
     }
@@ -444,8 +449,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        final Call<JsonObject> trackFetcher = Partner.getInstance(this)
-                .getPartnerApi().getTrackInfo(state.getSongId());
+        String accessToken = getSharedPreferences("USER",MODE_PRIVATE).getString("access_token",null);
+        final Call<JsonObject> trackFetcher = Partner.getInstance()
+                .getPartnerApi().getTrackInfo(state.getSongId(),"Bearer "+accessToken);
         trackFetcher.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {

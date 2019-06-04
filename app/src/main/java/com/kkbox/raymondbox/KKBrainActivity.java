@@ -46,8 +46,13 @@ public class KKBrainActivity extends AppCompatActivity {
                 "}");
     }
     public void sendRequest(View view){
+        String userID = getSharedPreferences("USER",MODE_PRIVATE)
+                .getString("id",null);
+        String accessToken = getSharedPreferences("USER",MODE_PRIVATE)
+                .getString("access_token",null);
         String query = ((EditText)findViewById(R.id.editText_kkbrain_intent)).getText().toString();
-        final Call<JsonObject> request =  KKAssistant.getInstance(this).ask(query);
+        final Call<JsonObject> request =  KKAssistant.getInstance().getKkBrainApi().getAssistantCall(
+                KKAssistant.getRequestBody(query,userID,accessToken));
         final long startTime = System.nanoTime();
         request.enqueue(new Callback<JsonObject>() {
             @Override

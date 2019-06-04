@@ -30,25 +30,13 @@ public class Partner {
     public interface PartnerApi {
         String BASE_URL = "https://api.kkbox.com/v1.1/";
         @GET("me")
-        Call<JsonObject> getMe();
+        Call<JsonObject> getMe(@Header("Authorization")String accessToken);
         @GET("tracks/{trackID}?territory=TW")
-        Call<JsonObject> getTrackInfo(@Path("trackID")String trackID);
+        Call<JsonObject> getTrackInfo(@Path("trackID")String trackID,@Header("Authorization")String accessToken);
     }
-    Partner(Context context){
-        SharedPreferences pref = context.getSharedPreferences("USER",MODE_PRIVATE);
-        final String token = pref.getString("access_token",null);
+    Partner(){
 
         OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        Request request = chain.request();
-                        request = request.newBuilder()
-                                .addHeader("authorization","Bearer "+token)
-                                .build();
-                        return chain.proceed(request);
-                    }
-                })
                 .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
                 .build();
 
@@ -61,9 +49,9 @@ public class Partner {
 
     }
 
-    public static Partner getInstance(Context context){
+    public static Partner getInstance(){
         if(partnerInstance==null){
-            partnerInstance = new Partner(context);
+            partnerInstance = new Partner();
         }
         return partnerInstance;
     }

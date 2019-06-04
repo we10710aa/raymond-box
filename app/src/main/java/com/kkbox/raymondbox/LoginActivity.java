@@ -17,6 +17,7 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Calendar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import retrofit2.Call;
@@ -48,8 +49,9 @@ public class LoginActivity extends AppCompatActivity {
         urlCall.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                String url = response.body().get("verification_qrcode").getAsString();
-                String deviceCode = response.body().get("device_code").getAsString();
+                assert response.body() != null;
+                String url = KKBOXOAuth.parseDeviceVerificationUrl(response.body());
+                String deviceCode = KKBOXOAuth.parseDeviceCode(response.body());
                 Log.d("LoginActivity","got url: "+url+" and device code: "+deviceCode);
                 try {
                     String encodedURL = URLEncoder.encode(url,"UTF-8");
@@ -63,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
                     imgQrcode.setVisibility(View.VISIBLE);
                     tokenPolling(deviceCode);
                 } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                    startActivity(new Intent(LoginActivity.this,StartActivity.class));
                 }
             }
 
@@ -98,6 +100,7 @@ public class LoginActivity extends AppCompatActivity {
                     pollingHandler.postDelayed(this,3000);
                 }
                 else if (res.body().has("error")){
+                    //authoriztion pending
                     Log.d("LoginPolling","not yet authorized, retry");
                     pollingHandler.postDelayed(this,3000);
                 }
@@ -108,10 +111,12 @@ public class LoginActivity extends AppCompatActivity {
                 else{
                     SharedPreferences pref = getSharedPreferences("USER",MODE_PRIVATE);
                     pref.edit()
-                            .putString("access_token",res.body().get("access_token").getAsString())
-                            .putString("expires_in", res.body().get("expires_in").getAsString())
-                            .putString("refresh_token",res.body().get("refresh_token").getAsString())
+                            .putString("access_token",KKBOXOAuth.parseAccessToken(res.body()))
+                            .putString("expires_in", KKBOXOAuth.parseExpiresIn(res.body()))
+                            .putString("refresh_token",KKBOXOAuth.parseRefreshToken(res.body()))
                             .apply();
+
+                    Log.d("loginPolling",res.body().toString());
                     Log.d("LoginPolling","login success");
                     pollingHandler.removeCallbacks(this);
                     pollingThread.quit();
