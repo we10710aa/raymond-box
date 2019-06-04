@@ -18,7 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity android:name=".KKlinxActivity"></activity>
-        <activity android:name=".KKBrainActivity" />
+        <activity android:name=".KKAssistantActivity" />
         <activity
             android:name=".PersonalActivity"
             android:label="@string/title_activity_personal" />

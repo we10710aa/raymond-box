@@ -20,7 +20,7 @@ public class StartFunctionAdapter extends BaseAdapter {
     public StartFunctionAdapter(Context context){
         this.context = context;
         activityList.add(MainActivity.class);
-        activityList.add(KKBrainActivity.class);
+        activityList.add(KKAssistantActivity.class);
         activityList.add(KKlinxActivity.class);
     }
 

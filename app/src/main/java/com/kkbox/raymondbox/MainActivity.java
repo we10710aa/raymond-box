@@ -32,8 +32,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -362,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
         String accessToken = getSharedPreferences("USER",MODE_PRIVATE)
                 .getString("access_token",null);
         Call<JsonObject> request = KKAssistant.getInstance()
-                .getKkBrainApi().getAssistantCall(KKAssistant.getRequestBody(key,userID,accessToken));
+                .getKkAssistantApi().getAssistantCall(KKAssistant.getRequestBody(key,userID,accessToken));
         final TextView timeLog = findViewById(R.id.text_timeLog);
         final long startTime = System.nanoTime();
         request.enqueue(new Callback<JsonObject>() {

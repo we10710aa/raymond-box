@@ -25,7 +25,6 @@ import com.squareup.picasso.Picasso;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 public class StartActivity extends AppCompatActivity {
     private ConstraintLayout loggedInLayout;
@@ -44,7 +43,7 @@ public class StartActivity extends AppCompatActivity {
 
         final SharedPreferences preferences = getSharedPreferences("USER", MODE_PRIVATE);
         if (preferences.contains("access_token")) {
-            setUserCard(preferences);
+            setUserCard();
         } else {
             buttonLogin = findViewById(R.id.btn_start_login);
             buttonLogin.setOnClickListener(new View.OnClickListener() {
@@ -62,9 +61,11 @@ public class StartActivity extends AppCompatActivity {
 
     }
 
-    private void setUserCard(final SharedPreferences preferences) {
+    private void setUserCard() {
+        final String accessToken = getSharedPreferences("USER",MODE_PRIVATE)
+                .getString("access_token",null);
         Call<JsonObject> call = Partner.getInstance().
-                getPartnerApi().getMe("Bearer "+preferences.getString("access_token",null ));
+                getPartnerApi().getMe("Bearer "+accessToken);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -72,12 +73,13 @@ public class StartActivity extends AppCompatActivity {
                 final String userID = Partner.parseUserID(response.body());
                 String userName = Partner.parseUserName(response.body());
                 String url = Partner.parseUserImageUrl(response.body());
-                final String token = preferences.getString("access_token", null);
-                preferences.edit().putString("id", userID).apply();
+                getSharedPreferences("USER",MODE_PRIVATE).edit()
+                        .putString("id", userID)
+                        .apply();
                 Picasso.get().load(url).into((ImageView) findViewById(R.id.img_start_avatar));
-                ((TextView) findViewById(R.id.tv_start_userid)).setText("ID:" + userID);
+                ((TextView) findViewById(R.id.tv_start_userid)).setText(userID);
                 ((TextView) findViewById(R.id.tv_start_username)).setText(userName);
-                ((TextView) findViewById(R.id.tv_start_accesstoken)).setText("TOKEN:" + token);
+                ((TextView) findViewById(R.id.tv_start_accesstoken)).setText(accessToken);
                 loggedInLayout.setVisibility(View.VISIBLE);
                 notLogggedInLayout.setVisibility(View.INVISIBLE);
             }
@@ -124,7 +126,7 @@ public class StartActivity extends AppCompatActivity {
                         .putString("expires_in", KKBOXOAuth.parseExpiresIn(response.body()))
                         .putString("refresh_token",KKBOXOAuth.parseRefreshToken(response.body()))
                         .apply();
-                setUserCard(preferences);
+                setUserCard();
 
             }
 

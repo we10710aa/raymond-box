@@ -1,13 +1,8 @@
 package com.api.kkbox;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Log;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.kkbox.raymondbox.KKBrainActivity;
 
 import org.json.JSONObject;
 
@@ -27,8 +22,6 @@ import retrofit2.http.Body;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 
-import static android.content.Context.MODE_PRIVATE;
-
 public class KKAssistant {
     public static final int AUDIO_INEFFECTIVE=-1;
     public static final int AUDIO_PLAY=0;
@@ -39,9 +32,9 @@ public class KKAssistant {
     public static final int AUDIO_ERROR =-2 ;
 
     private static KKAssistant kkAssistantInstance;
-    private KKBrainApi kkBrainApi;
+    private KKAssistantApi kkAssistantApi;
 
-    public interface KKBrainApi {
+    public interface KKAssistantApi {
         @POST("/")
         @Headers({"Content-type: application/json"})
         Call<JsonObject> getAssistantCall(@Body RequestBody body);
@@ -53,12 +46,12 @@ public class KKAssistant {
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(KKBrainApi.BASE_URL)
+                .baseUrl(KKAssistantApi.BASE_URL)
                 .client(client)  //get rid of this line if you don't want http logging
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        KKBrainApi api = retrofit.create(KKBrainApi.class);
-        kkBrainApi = api;
+        KKAssistantApi api = retrofit.create(KKAssistantApi.class);
+        kkAssistantApi = api;
 
     }
 
@@ -69,8 +62,8 @@ public class KKAssistant {
         return kkAssistantInstance;
     }
 
-    public KKBrainApi getKkBrainApi(){
-        return  this.kkBrainApi;
+    public KKAssistantApi getKkAssistantApi(){
+        return  this.kkAssistantApi;
     }
 
     public static RequestBody getRequestBody(final String key,final String userID,final String accessToken){
